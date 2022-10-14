@@ -72,7 +72,7 @@ pcl_ros::EuclideanClusterExtraction::onInit ()
   if (publish_indices_)
     pub_output_ = advertise<PointIndices> (*pnh_, "output", max_queue_size_);
   else
-    pub_output_ = advertise<PointCloud> (*pnh_, "output", max_queue_size_);
+    pub_output_ = advertise<PointCloud2> (*pnh_, "output", max_queue_size_);
 
   // Enable the dynamic reconfigure service
   srv_ = boost::make_shared <dynamic_reconfigure::Server<EuclideanClusterExtractionConfig> > (*pnh_);
@@ -225,24 +225,25 @@ pcl_ros::EuclideanClusterExtraction::input_indices_callback (
   }
   else
   {
+    pcl::PointCloud<pcl::PointXYZL> labelled_cloud;
     for (size_t i = 0; i < clusters.size (); ++i)
     {
       if ((int)i >= max_clusters_)
         break;
-      PointCloud output;
+      pcl::PointCloud<pcl::PointXYZL> output;
       copyPointCloud (*cloud, clusters[i].indices, output);
 
-      //PointCloud output_blob;     // Convert from the templated output to the PointCloud blob
-      //pcl::toROSMsg (output, output_blob);
-      // TODO: HACK!!! We need to change the PointCloud2 message to add for an incremental sequence ID number.
-      std_msgs::Header header = fromPCL(output.header);
-      header.stamp += ros::Duration (i * 0.001);
-      toPCL(header, output.header);
-      // Publish a Boost shared ptr const data
-      pub_output_.publish (ros_ptr(output.makeShared ()));
-      NODELET_DEBUG ("[segmentAndPublish] Published cluster %zu (with %zu values and stamp %f) on topic %s",
-                     i, clusters[i].indices.size (), header.stamp.toSec (), pnh_->resolveName ("output").c_str ());
+      for (int j = 0; j < output.size(); j++)
+        output.points[j].label = i;
+      labelled_cloud += output;
     }
+    
+    sensor_msgs::PointCloud2 output;
+    pcl::toROSMsg(labelled_cloud, output);
+    output.header = fromPCL(cloud->header);
+
+    // Publish a Boost shared ptr const data
+    pub_output_.publish (output);
   }
 }
 
