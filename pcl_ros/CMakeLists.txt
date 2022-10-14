@@ -89,6 +89,7 @@ generate_dynamic_reconfigure_options(
   cfg/RadiusOutlierRemoval.cfg
   cfg/VoxelGrid.cfg
   cfg/CropBox.cfg
+  cfg/FrameSkipper.cfg
 )
 
 ## Declare the catkin package
@@ -174,6 +175,7 @@ add_library(pcl_ros_filters
   src/pcl_ros/filters/statistical_outlier_removal.cpp
   src/pcl_ros/filters/voxel_grid.cpp
   src/pcl_ros/filters/crop_box.cpp
+  src/pcl_ros/filters/frame_skipper.cpp
 )
 target_link_libraries(pcl_ros_filters pcl_ros_filter pcl_ros_tf ${Boost_LIBRARIES} ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 add_dependencies(pcl_ros_filters ${PROJECT_NAME}_gencfg)

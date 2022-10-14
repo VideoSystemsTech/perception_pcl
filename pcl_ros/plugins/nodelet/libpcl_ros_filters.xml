@@ -40,4 +40,10 @@
       CropBox is a filter that allows the user to filter all the data inside of a given box.
     </description>
   </class>
+
+  <class name="pcl/FrameSkipper" type="FrameSkipper" base_class_type="nodelet::Nodelet">
+    <description>
+      FrameSkipper is used to skip some frames.
+    </description>
+  </class>
 </library>
